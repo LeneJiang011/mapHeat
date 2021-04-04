@@ -4,6 +4,7 @@
 <img src="https://github.com/LeneJiang011/mapHeat/blob/master/overview.png" alt="热力图概览" width="50%" height="50%" center>
 
 ## 功能  
+操作见[视频](https://github.com/LeneJiang011/mapHeat/blob/master/operate.mp4)  
 <video width="40%" height="400" controls>
     <source src="https://github.com/LeneJiang011/mapHeat/blob/master/operate.mp4" type="video/mp4">
 </video>
