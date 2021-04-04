@@ -1,5 +1,4 @@
 # 书籍本数热力图  
----
 
 ## 概览  
 <img src="https://github.com/LeneJiang011/mapHeat/blob/master/overview.png" alt="热力图概览" width="50%" height="50%" center>
@@ -11,7 +10,6 @@
 1. 显示以书籍本数为热度的热力地图（下面简化描述为**热力地图**），  
 2. 随鼠标滑轮滚动显示缩放的热力地图，  
 3. 在一定操作时间支持在拖拽动作后显示相应热力地图。  
----
 
 ## 实现思路及参考文档  
 1. 已知详细地址，将详细地址转为经纬度表示；
@@ -28,9 +26,10 @@
 第二阶段：优化数据获取、数据处理以优化热力图绘制  
 - <font color="ff4c4c">**[未实现]**</font> 直接从json文件获取数据。目前的为直接将数据复制粘贴进`script.js`；     
 - <font color="ff4c4c">**[未实现]**</font> 合并地址重复项。目前考虑到由于热力图是线性叠加、且仅有3个地址有重复项，从而认为此处影响可忽略不计。因此目前没有解决此处的问题；
-- 确定热力范围。下图的纵轴表示热力值。如图所示，可得绝大部分热力值位于40及其以下、位于0以上。以此确定colorbar的范围为[1, 40)，大于40的热力值按40计；  
+- <font color="ff4c4c">**[未实现]**</font> 浏览器性能优化。预计参照 [[3]](https://www.jianshu.com/p/f795cc2c14f5?utm_campaign=maleskine)进行优化； 
+- 确定热力范围。下图的纵轴表示热力值。如图所示，可得绝大部分热力值位于40及其以下、位于0以上。以此确定colorbar的范围为[1, 40)，大于40的热力值按40计;
 <img src="https://github.com/LeneJiang011/mapHeat/blob/master/heatSta.png" alt="热力统计" width="50%" height="50%" center>
-- <font color="ff4c4c">**[未实现]**</font> 浏览器性能优化。预计参照 [[3]](https://www.jianshu.com/p/f795cc2c14f5?utm_campaign=maleskine)进行优化。  
+ 
 
 第三阶段：绘制地图，并在地图上绘制热力图  
 - <font color="ff4c4c">**[未实现]**</font> 绘制地图。参考 [[6]](https://github.com/cangyan/TAV/blob/master/00019_D3_CHINA_MAP/index.html) 使用D3.js绘制中，目前的效果如下图所示：
