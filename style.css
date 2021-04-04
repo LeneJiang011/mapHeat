@@ -59,3 +59,25 @@ h1 {
   top: 0;
   left: -40px;
 }
+
+.colorText {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  align-items: right;
+  text-align: right;
+  color: black;
+  top: -10px;
+  left: -74px;
+}
+
+.colorBText {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  align-items: right;
+  text-align: right;
+  color: black;
+  top: 240px;
+  left: -94px;
+}

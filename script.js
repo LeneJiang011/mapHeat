@@ -8,14 +8,13 @@ const mapContainer = document.getElementById('container');
 //const testAdd = document.getElementById("testjson");
 
 
-var dataLoaded;
 var context = canvas.getContext('2d');
 var map = new BMap.Map("container");
 map.centerAndZoom("北京", 11);
 map.enableScrollWheelZoom();
 //map.enableContinuousZoom();
 
-//数据
+//json数据
 const rawdata = [
   {
     "address": "北京市朝阳区北苑路172号欧陆经典小区",
@@ -377,39 +376,22 @@ function checkData() {
   }
 }*/
 
-//数据处理(新代码块)
+
 let xyData = [];
 var localSearch = new BMap.LocalSearch(map);
-localSearch.enableAutoViewport();
-
-/*
-function dealwithData() {
-  rawdata.forEach(item => { searchByName(item.address, item.quantity); });
-}*/
 
 window.onload = function() {
   rawdata.forEach(item => { searchByName(item.address, item.quantity); });
 };
 
 
-/*function getMercatorLon(x){
-  return x/20037508.34*180;
-}
-
-function getMercatorLat(y){
-  y = y/20037508.34*180;
-  return 180/Math.PI*(2*Math.atan(Math.exp(y*Math.PI/180))-Math.PI/2);
-}*/
-
-
-//var localSearch = new BMap.LocalSearch(map);
-//localSearch.enableAutoViewport(); //允许自动调节窗体大小
-
 const zoomSteps = {
-  '11': 20,
-  '10': 12,
-  '9': 8,
-  '8': 6
+  13: 24,
+  12: 24,
+  11: 20,
+  10: 12,
+  9: 8,
+  8: 6
 };
 
 function searchByName(address, quantity) {
@@ -444,9 +426,17 @@ function searchByName(address, quantity) {
     //map.addOverlay(marker);
 
     xyData.push(newData);
-    var tmp = map.getZoom() - 4;
 
-    const radius = tmp * 3;
+    var tmp = map.getZoom();
+
+    if (tmp >= 13) {
+      tmp = 12;
+    }
+    if (tmp <= 8) {
+      tmp = 8;
+    }
+
+    const radius = zoomSteps[tmp];
     
     
     let radialGradient = context.createRadialGradient(x, y, 0, x, y, radius);
@@ -459,7 +449,7 @@ function searchByName(address, quantity) {
 
     // min取1原因：所有quantity都大于1
     // max不取100以上原因：根据数据分布可得，大部分的数位于50及其以下。
-    let globalAlpha = (quantity - 1) / (50 - 1);
+    let globalAlpha = (quantity - 1) / (40 - 1);
     context.globalAlpha = Math.max(Math.min(globalAlpha, 1), 0);
 
     // 填充颜色
@@ -481,9 +471,18 @@ function searchByName(address, quantity) {
   localSearch.search(address);
 }
 
+function compare(property) {
+  return function(a,b) {
+    var value1 = a[property];
+    var value2 = b[property];
+    return value1 - value2;
+  }
+}
+
 function drawMono() {
-  dataLoaded = xyData.length;
-  xyData.forEach(item => {
+  //从左到右绘制
+  var arr = xyData.sort(compare('axisX'));
+  arr.forEach(item => {
     let radialGradient = context.createRadialGradient(item.axisX, item.axisY, 0, item.axisX, item.axisY, 20);
     radialGradient.addColorStop(0.0, "rgba(0,0,0,1)");
     radialGradient.addColorStop(1.0, "rgba(0,0,0,0)");
@@ -494,49 +493,24 @@ function drawMono() {
 
     // min取1原因：所有quantity都大于1
     // max不取100以上原因：根据数据分布可得，大部分的数位于50及其以下。
-    let globalAlpha = (item.weight - 1) / (50 - 1);
+    let globalAlpha = (item.weight - 1) / (40 - 1);
     context.globalAlpha = Math.max(Math.min(globalAlpha, 1), 0);
 
     // 填充颜色
     context.fill();
+
+    let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    let data = imageData.data;
+    let palette = new Palette();
+    for (var i = 3; i < data.length; i+=4) {
+      let alpha = data[i];
+      let color = palette.colorPicker(alpha);
+      data[i - 3] = color[0];
+      data[i - 2] = color[1];
+      data[i - 1] = color[2];
+    }
+    context.putImageData(imageData, 0, 0);
   })
-}
-
-/*
-btn.addEventListener('click', e => {
-  if (dataLoaded != rawdata.length) {
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    drawMono();
-  } 
-});*/
-
-/*
-btn.addEventListener('click', e => {
-  canvas.style.zIndex = 100;
-  var context = canvas.getContext('2d');
-  context.fillStyle = 'rgba(0, 255, 255, 0)'
-  context.beginPath();
-  context.fillRect(0, 0, 730, 590);
-  rawdata.forEach(item => { searchByName(item.address, item.quantity); });
-});*/
-
-//colorIt.addEventListener('click', colorTheMap);
-target.addEventListener('click', e => {
-  context.clearRect(0, 0, canvas.width, canvas.height);
-})
-
-function colorTheMap() {
-  let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-  let data = imageData.data;
-  let palette = new Palette();
-  for (var i = 3; i < data.length; i+=4) {
-    let alpha = data[i];
-    let color = palette.colorPicker(alpha);
-    data[i - 3] = color[0];
-    data[i - 2] = color[1];
-    data[i - 1] = color[2];
-  }
-  context.putImageData(imageData, 0, 0);
 }
 
 function debounce(fn,delay){
@@ -549,7 +523,7 @@ function debounce(fn,delay){
         //console.log(delay);
         clearTimeout(timer); 
       }
-      timer = setTimeout(fn,delay); // 简化写法
+      timer = setTimeout(fn,delay); 
   }
 }
 
@@ -560,87 +534,11 @@ function showCanvas() {
   //dragFlag = false;
   canvas.style.zIndex = 100;
   mapContainer.style.opacity = 0.7;
-  //xyData = [];
+  xyData = [];
   rawdata.forEach(item => { searchByName(item.address, item.quantity); });
 }
 
-var dragFlag = null;
-
 bigCon.addEventListener('wheel', debounce(showCanvas, 1000));
-/*bigCon.addEventListener('click', e => {
-  canvas.style.zIndex = -1;
-  mapContainer.style.opacity = 1;
-})*/
-
-/*function (event) {
-  console.log('mousedown');
-  canvas.style.zIndex = -1;
-  mapContainer.style.opacity = 1;
-*/
-  /*
-  document.onmousemove = function (event) {
-    canvas.style.zIndex = -1;
-    mapContainer.style.opacity = 1;
-  }*/
-
-
-//bigCon.onmouseup = debounce(showCanvas, 1000);
-
-/*
-bigCon.onmouseup = function() {
-  console.log("up");
-  let timer = null; //借助闭包
-  (function(timer) {
-      if(timer){
-        //canvas.style.zIndex = -1;
-        //mapContainer.style.opacity = 1;
-        //console.log('也进来了啊');
-        console.log('200秒');
-        clearTimeout(timer); 
-      }
-      timer = setTimeout(function() {
-        mapContainer.opacity = 0.7;
-      },200); // 简化写法
-  })();
-}*/
-
-/*
-bigCon.addEventListener('click', e => {
-  dragFlag = true;
-  //context.clearRect(0, 0, canvas.width, canvas.height);
-  mapContainer.style.zIndex = 20;
-  mapContainer.style.opacity = 1;
-});
-
-bigCon.addEventListener('', e => {
-  let previousX = e.clientX;
-  let previousY = e.clientY;
-  if (dragFlag) {
-    console.log(dragFlag);
-    setTimeout(function() {
-      var nowX = e.clientX;
-      var nowY = e.clientY;
-      if (previousX == nowX && previousY == nowY) {
-        console.log("let it in");
-        dragFlag = false;
-        canvas.style.zIndex = 100;
-        mapContainer.style.opacity = 0.7;
-        rawdata.forEach(item => { searchByName(item.address, item.quantity); });
-      }
-    }, 200);
-}});
-//bigCon.addEventListener('click', debounce(showCanvas, 1000));
-/*bigCon.addEventListener('wheel', function() {
-  console.log('滚了啊');
-  canvas.style.zIndex = -1;
-  /*context.clearRect(0, 0, canvas.width, canvas.height);
-  setTimeout(() => {
-    canvas.style.zIndex = 100;
-    dealwithData;
-    drawMono();
-  }, 1000);*/
-  //debounce(showCanvas, 1000);
-//});*/
 
 
 
@@ -648,7 +546,7 @@ bigCon.addEventListener('', e => {
 const defaultColorStops = {
   0.1: "#0ff",
   0.2: "#0f0",
-  0.6: "#ff0",
+  0.5: "#ff0",
   1: "#f00",
 };
 const width = 20, height = 256;
@@ -665,6 +563,16 @@ Palette.prototype.init = function() {
   let canvasTwo = document.createElement("canvas");
   canvasTwo.classList.add('colorbar');
   forColor.appendChild(canvasTwo);
+  let textCtx = document.createElement("div");
+  textCtx.classList.add('colorText');
+  textCtx.innerHTML = `<span>0 本</span>`;
+  forColor.appendChild(textCtx);
+  
+  let textCtx2 = document.createElement("div");
+  textCtx2.classList.add('colorBText');
+  textCtx2.innerHTML = `<span>40本<br />及以上</span>`;
+  forColor.appendChild(textCtx2);
+  
   canvasTwo.width = width;
   canvasTwo.height = height;
   let ctx = canvasTwo.getContext("2d");
@@ -687,5 +595,3 @@ Palette.prototype.init = function() {
 Palette.prototype.colorPicker = function(position) {
   return this.imageData.slice(position * 4, position * 4 + 3);
 };
-
-// 像素着色
