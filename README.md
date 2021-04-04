@@ -38,8 +38,8 @@
 - <font color="ff4c4c">**[未实现]**</font> 绘制地图。参考 [[6]](https://github.com/cangyan/TAV/blob/master/00019_D3_CHINA_MAP/index.html) 使用D3.js绘制中，目前的效果如下图所示：
 <img src="https://github.com/LeneJiang011/mapHeat/blob/master/drawMap.png" alt="地图绘制" width="50%" height="50%" center>
 如图所示各区中心由白点表示，预计先通过百度地图API获取的经纬度带入白点的计算表示，再在其上绘制热力图。  
-<br />
-第四阶段：交互及跨浏览器支持    
+
+第四阶段：交互及跨浏览器支持  
 - <font color="ff4c4c">**[未实现]**</font> 增加缩放、拖拽、悬浮以显示信息等交互。目前由于使用了百度地图API及其附带的交互，可支持缩放热力图。在缩放激发响应的情况下支持短时间的拖拽交互，目前的实现没有涉及拖拽交互；  
 - <font color="ff4c4c">**[未实现]**</font> 跨浏览器支持。  
 
